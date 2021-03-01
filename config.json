@@ -1,41 +1,41 @@
 {
     "name": "DM5",
-    "icon": "http://css99tel.cdndm5.com/v202008141414/dm5/images/header-logo.png",
-    "url": "http://www.dm5.cn/",
+    "icon": "https://css99tel.cdndm5.com/v202008141414/dm5/images/header-logo.png",
+    "url": "https://www.dm5.cn/",
     "index": "index.rb",
     "book": "book.rb",
     "chapter": "chapter.rb",
     "search": {
         "src": "search.rb",
         "data": {
-            "url": "http://m.dm5.com/search?title={0}&language=1&page={1}"
+            "url": "https://m.dm5.com/search?title={0}&language=1&page={1}"
         }
     },
     "categories": [
         {
             "title": "更新",
             "id": "update",
-            "url": "http://m.dm5.com/"
+            "url": "https://m.dm5.com/"
         },
         {
             "title": "日韩",
             "id": "japan",
-            "url": "http://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=36&action=getclasscomics"
+            "url": "https://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=36&action=getclasscomics"
         },
         {
             "title": "港台",
             "id": "hongkong",
-            "url": "http://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=35&action=getclasscomics"
+            "url": "https://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=35&action=getclasscomics"
         },
         {
             "title": "大陆",
             "id": "china",
-            "url": "http://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=37&action=getclasscomics"
+            "url": "https://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=37&action=getclasscomics"
         },
         {
             "title": "欧美",
             "id": "europe",
-            "url": "http://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=52&action=getclasscomics"
+            "url": "https://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=52&action=getclasscomics"
         }
     ]
 }
