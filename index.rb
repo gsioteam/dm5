@@ -41,7 +41,7 @@ class HomeCollection < Collection
           item.type = GS::DataItem::Header
           title = node.querySelector '.manga-list-title'
           item.title = title.text[/[^\ ]+/]
-          item.picture = 'http://css99tel.cdndm5.com/v202008141414/dm5/images/sd/index-title-1.png'
+          item.picture = 'https://css99tel.cdndm5.com/v202008141414/dm5/images/sd/index-title-1.png'
           result << item
           
           book_nodes = node.querySelectorAll '.swiper-slide > li'
