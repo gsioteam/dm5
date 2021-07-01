@@ -7,7 +7,6 @@ class Collection < GS::Collection
   end
 
   def fetch url
-    p "url : #{url}"
     req = GS::Request.create 'GET', url
     @callback = GS::Callback.block do 
       if req.has_error
@@ -111,7 +110,6 @@ class ListCollection < GS::Collection
           item.title = ditem['Title']
           item.subtitle = ditem['Author'].join ','
           item.link = page_url.href("/#{ditem['UrlKey']}")
-          p "url : #{item.link}"
           result << item
         end if items
         yield result
