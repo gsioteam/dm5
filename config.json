@@ -3,8 +3,10 @@
     "icon": "https://css99tel.cdndm5.com/v202008141414/dm5/images/header-logo.png",
     "url": "https://www.dm5.cn/",
     "index": "index.rb",
-    "book": "book.rb",
-    "chapter": "chapter.rb",
+    "collections": [
+        "book.js",
+        "chapter.js"
+    ],
     "search": {
         "src": "search.rb",
         "data": {
