@@ -29,7 +29,7 @@ function parseData(text, url) {
     return {
         subtitle: subtitle,
         summary: summary,
-        list: list,
+        list: list.reverse(),
     };
 }
 
