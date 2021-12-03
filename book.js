@@ -11,7 +11,7 @@ class BookController extends Controller {
      * @property {Object}data Data will be sent to book page.
      * @property {String}page The book page path.
      */
-    get bookInfo() {
+    get bookInfo() { 
         return {
             key: this.url,
             title: this.data.title,
