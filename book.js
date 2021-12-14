@@ -66,6 +66,7 @@ class BookController extends Controller {
             this.reload();
         }
         FavoritesManager.clearNew(this.url);
+        this.data.last = this.getLast();
     }
 
     unload() {
@@ -177,7 +178,7 @@ class BookController extends Controller {
         });
     }
 
-    onPressed(idx) {
+    async onPressed(idx) {
         if (this.data.editing) {
             this.setState(()=>{
                 let loc = this.selected.indexOf(idx);
@@ -188,10 +189,37 @@ class BookController extends Controller {
                 }
             });
         } else {
-            this.openBook({
+            await this.openBook({
                 list: this.data.list,
                 index: idx,
             });
+            this.setState(()=>{
+                this.data.last = this.getLast();
+            })
+        }
+    }
+    
+    async onLastPressed() {
+        let key = this.getLastKey(this.url);
+        let idx;
+        if (key) {
+            for (let i = 0, t = this.data.list.length; i < t; ++i) {
+                let data = this.data.list[i];
+                if (data.link === key) {
+                    idx = i;
+                    break;
+                }
+            }
+        }
+        if (typeof idx === 'number') {
+            await this.openBook({
+                key: this.url,
+                list: this.data.list,
+                index: idx,
+            });
+            this.setState(()=>{
+                this.data.last = this.getLast();
+            })
         }
     }
 
@@ -217,6 +245,24 @@ class BookController extends Controller {
 
     isFavarite() {
         return FavoritesManager.exist(this.url);
+    }
+
+    getLast() {
+        if (this.getLastKey) {
+            let key = this.getLastKey(this.url);
+            if (key) {
+                for (let data of this.data.list) {
+                    if (data.link === key) {
+                        var title = data.title;
+                        if (title.length > 18) {
+                            title = '...' + title.substr(title.length - 16)
+                        }
+                        return title;
+                    }
+                }
+            }
+        }
+        return null
     }
 }
 

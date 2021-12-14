@@ -66,6 +66,11 @@
                             <row>
                                 <icon color="color(primary)">bookmark</icon>
                                 <text text="loc(chapters)"/>
+                                <if candidate="isNotNull($last)">
+                                    <button type="text" onPressed="onLastPressed">
+                                        <text text="str(&quot;[&quot;,${last},&quot;]&quot;)"/>
+                                    </button>
+                                </if>
                                 <expanded />
                                 <menu-button onSelected="onOrderSelected">
                                     <attr:icon>
