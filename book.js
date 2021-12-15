@@ -190,6 +190,7 @@ class BookController extends Controller {
             });
         } else {
             await this.openBook({
+                key: this.url,
                 list: this.data.list,
                 index: idx,
             });
