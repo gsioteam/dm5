@@ -157,6 +157,9 @@ class MainController extends Controller {
                     title: link.getAttribute('title'),
                     link: new URL(link.getAttribute('href'), url).toString(),
                     picture: book_node.querySelector('img').getAttribute('data-cfsrc'),
+                    pictureHeaders: {
+                        Referer: url
+                    },
                     subtitle: subtitle == null ? null : subtitle.text,
                 });
             }
@@ -175,6 +178,9 @@ class MainController extends Controller {
                 title: item['Title'],
                 subtitle: item['Author'].join(','),
                 picture: item['ShowPicUrlB'],
+                pictureHeaders: {
+                    Referer: url
+                },
                 link: new URL(`/${item['UrlKey']}`, url).toString(),
             });
         }

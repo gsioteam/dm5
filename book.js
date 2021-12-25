@@ -29,19 +29,21 @@ class BookController extends Controller {
     }
 
     async load(data) {
+        this.url = data.link;
         this.data = {
             title: data.title,
             subtitle: data.subtitle,
             summary: data.summary,
             picture: data.picture,
+            pictureHeaders: {
+                Referer: this.url
+            },
             loading: false,
             editing: false,
             reverse: localStorage['reverse'] != 'false',
             list: []
         };
         this.selected = [];
-
-        this.url = data.link;
         
         /**
          * Add history record

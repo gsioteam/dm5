@@ -149,6 +149,9 @@ class SearchController extends Controller {
                 title: node.querySelector('.book-list-info-title').text,
                 subtitle: tmp ? tmp.text : undefined,
                 picture: node.querySelector('.book-list-cover-img').getAttribute('data-cfsrc'),
+                pictureHeaders: {
+                    Referer: url
+                },
                 link: new URL(node.querySelector('.book-list-info > a').getAttribute('href'), url).toString(),
             });
 

@@ -5,7 +5,7 @@ const bookFetch = require('./book_fetch');
  * @method load need override,
  * @method checkNew need override
  */
-class MangaProcesser extends Processor {
+class MangaProcessor extends Processor {
 
     // The key for caching data
     get key() {
@@ -40,6 +40,9 @@ class MangaProcesser extends Processor {
                     for (let i = 0, t = arr.length; i < t; ++i) {
                         data.push({
                             url: arr[i],
+                            headers: {
+                                Referer: url
+                            }
                         });
                     }
                     console.log(`setData ${JSON.stringify(data)}`);
@@ -93,4 +96,4 @@ class MangaProcesser extends Processor {
     }
 }
 
-module.exports = MangaProcesser;
+module.exports = MangaProcessor;

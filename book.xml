@@ -8,7 +8,7 @@
                 <FlexibleSpaceBar padding="ltrb(20,0,0,64)">
                     <attr:background>
                         <stack>
-                            <img src="$picture" fit="cover" width="infinity()" height="infinity()"/>
+                            <img src="$picture" headers="$pictureHeaders" fit="cover" width="infinity()" height="infinity()"/>
                             <filter filter="blur(4, 4)">
                                 <view color="hex(#0000)"/>
                             </filter>
