@@ -10,8 +10,7 @@ function parseData(text, url) {
             link: `https://m.dmzj.com/chapinfo/${link['comic_id']}/${link['id']}.html`,
         };
         item.title = link['chapter_name'];
-        let time = new Date(parseInt(link['updatetime']))
-        item.subtitle = `${time.getFullYear()}-${time.getMonth()}-${time.getDate()}`;
+        item.subtitle = '';
         list.push(item);
     }
 

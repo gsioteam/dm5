@@ -117,8 +117,8 @@ class SearchController extends Controller {
 
     async request(url) {
         let res = await fetch(url);
-        let json = JSON.parse(res.text.substring(20,res.text.length-1));
-
+        let text = await res.text();
+        let json = JSON.parse(text.substring(20,text.length-1));
         let items = [];
         for (let result of json) {
             items.push({
