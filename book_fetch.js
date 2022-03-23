@@ -1,28 +1,17 @@
 
 function parseData(text, url) {
-    const doc = HTMLParser.parse(text);
-    let summary = doc.querySelector('.detail-desc').text;
-    let authors = doc.querySelectorAll('.detail-main-info-author a');
-    let alist = [];
-    for (let a of authors) {
-        alist.push(a.text);
-    }
-    let subtitle = alist.join(',');
+    const json = JSON.parse(text);
+    let summary = json['data']['info']['description'];
+    let subtitle = json['data']['info']['authors'];
 
-    let links = doc.querySelectorAll('#tempc > ul > li > a');
+    let links = json['data']['list'];
     let list = [];
     for (let link of links) {
         let item = {
-            link: new URL(link.getAttribute('href'), url).toString(),
+            link: `https://m.dmzj.com/chapinfo/${link['comic_id']}/${link['id']}.html`,
         };
-        let title = link.querySelector('.detail-list-2-info-title');
-        if (title) {
-            item.title = title.text.replace(/ +/, ' ') 
-        } else {
-            item.title = link.text.replace(/ +/, ' ');
-        }
-        if (link.querySelector('.detail-list-2-info-right')) 
-            item.subtitle = 'VIP';
+        item.title = link['chapter_name'];
+        item.subtitle = link['chapter_order'];
         list.push(item);
     }
 
