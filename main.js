@@ -101,15 +101,27 @@ class MainController extends Controller {
         }
         let results = [];
         for (let item of items) {
-            results.push({
-                title: item['title'],
-                subtitle: item['sub_title'],
-                picture: item['cover'],
-                pictureHeaders: {
-                    Referer: url
-                },
-                link: `http://api.dmzj.com/dynamic/comicinfo/${item['obj_id']}.json`,
-            });
+            if (this.id == 'new'){
+                results.push({
+                    title: item['title'],
+                    subtitle: item['authors'],
+                    picture: item['cover'],
+                    pictureHeaders: {
+                        Referer: url
+                    },
+                    link: `http://api.dmzj.com/dynamic/comicinfo/${item['id']}.json`,
+                });
+            } else {
+                results.push({
+                    title: item['title'],
+                    subtitle: item['sub_title'],
+                    picture: item['cover'],
+                    pictureHeaders: {
+                        Referer: url
+                    },
+                    link: `http://api.dmzj.com/dynamic/comicinfo/${item['obj_id']}.json`,
+                });
+            }
         }
         return results;
     }

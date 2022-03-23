@@ -1,4 +1,3 @@
-
 function parseData(text, url) {
     const json = JSON.parse(text);
     let summary = json['data']['info']['description'];
@@ -11,7 +10,8 @@ function parseData(text, url) {
             link: `https://m.dmzj.com/chapinfo/${link['comic_id']}/${link['id']}.html`,
         };
         item.title = link['chapter_name'];
-        item.subtitle = link['chapter_order'];
+        let time = new Date(parseInt(link['chapter_order']))
+        item.subtitle = `${time.getFullYear()}-${time.getMonth()}-${time.getDate()}`;
         list.push(item);
     }
 
