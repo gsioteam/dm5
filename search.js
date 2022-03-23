@@ -1,6 +1,4 @@
 
-const baseURL = 'https://m.dm5.com/search?title={0}&language=1&page={1}';
-
 class SearchController extends Controller {
 
     load() {
@@ -22,8 +20,8 @@ class SearchController extends Controller {
         };
     }
 
-    makeURL(word, page) {
-        return baseURL.replace('{0}', encodeURIComponent(word)).replace('{1}', page + 1);
+    makeURL(word) {
+        return `http://sacg.dmzj.com/comicsum/search.php?s=${word}`;
     }
 
     onSearchClicked() {
@@ -52,9 +50,8 @@ class SearchController extends Controller {
                 this.data.loading = true;
             });
             try {
-                let list = await this.request(this.makeURL(text, 0));
+                let list = await this.request(this.makeURL(text));
                 this.key = text;
-                this.page = 0;
                 this.setState(()=>{
                     this.data.list = list;
                     this.data.loading = false;
@@ -101,8 +98,7 @@ class SearchController extends Controller {
         let text = this.key;
         if (!text) return;
         try {
-            let list = await this.request(this.makeURL(text, 0));
-            this.page = 0;
+            let list = await this.request(this.makeURL(text));
             this.setState(()=>{
                 this.data.list = list;
                 this.data.loading = false;
@@ -116,45 +112,24 @@ class SearchController extends Controller {
     }
 
     async onLoadMore() {
-        let page = this.page + 1;
-        try {
-            let list = await this.request(this.makeURL(this.key, page));
-            this.page = page;
-            this.setState(()=>{
-                for (let item of list) {
-                    this.data.list.push(item);
-                }
-                this.data.loading = false;
-            });
-        } catch(e) {
-            showToast(`${e}\n${e.stack}`);
-            this.setState(()=>{
-                this.data.loading = false;
-            });
-        }
+
     }
 
     async request(url) {
         let res = await fetch(url);
-        let text = await res.text();
-        
-        let doc = HTMLParser.parse(text);
-        
-        let items = [];
+        let json = JSON.parse(res.text.substring(20,res.text.length-1));
 
-        let list = doc.querySelectorAll('.book-list li');
-        for (let node of list) {
-            let tmp = node.querySelector('.book-list-info-bottom-item');
+        let items = [];
+        for (let result of json) {
             items.push({
-                title: node.querySelector('.book-list-info-title').text,
-                subtitle: tmp ? tmp.text : undefined,
-                picture: node.querySelector('.book-list-cover-img').getAttribute('data-cfsrc'),
+                title: result['comic_name'],
+                subtitle: result['comic_author'],
+                picture: result['comic_cover'],
                 pictureHeaders: {
                     Referer: url
                 },
-                link: new URL(node.querySelector('.book-list-info > a').getAttribute('href'), url).toString(),
+                link: `http://api.dmzj.com/dynamic/comicinfo/${result['id']}.json`,
             });
-
         }
         return items;
     }
