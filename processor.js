@@ -27,7 +27,7 @@ class MangaProcessor extends Processor {
             function getImage(text, url) {
                 const json = JSON.parse(text);
                 let data = [];
-                for (let img_url of json['page_url']) {
+                for (let img_url of json['page_url']) { //获取图片链接列表
                     data.push({
                         url: img_url,
                         headers: {

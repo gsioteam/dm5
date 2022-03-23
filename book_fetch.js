@@ -1,3 +1,4 @@
+//获取漫画信息
 function parseData(text, url) {
     const json = JSON.parse(text);
     let summary = json['data']['info']['description'];
@@ -10,7 +11,8 @@ function parseData(text, url) {
             link: `https://m.dmzj.com/chapinfo/${link['comic_id']}/${link['id']}.html`,
         };
         item.title = link['chapter_name'];
-        item.subtitle = '';
+        let createtime = new Date(parseInt(link['createtime']) * 1000).toLocaleString().replace(/:\d{1,2}$/,' ');
+        item.subtitle = createtime;
         list.push(item);
     }
 

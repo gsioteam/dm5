@@ -115,6 +115,7 @@ class SearchController extends Controller {
 
     }
 
+    //获取查找结果
     async request(url) {
         let res = await fetch(url);
         let text = await res.text();
@@ -126,7 +127,7 @@ class SearchController extends Controller {
                 subtitle: result['comic_author'],
                 picture: result['comic_cover'],
                 pictureHeaders: {
-                    Referer: url
+                    Referer: 'http://manhua.dmzj.com/'
                 },
                 link: `http://api.dmzj.com/dynamic/comicinfo/${result['id']}.json`,
             });

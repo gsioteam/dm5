@@ -4,6 +4,7 @@ class MainController extends Controller {
         this.id = data.id;
         this.url = data.url;
 
+        //查找缓存
         var cached = this.readCache();
         let list;
         if (cached) {
@@ -20,6 +21,7 @@ class MainController extends Controller {
 
         this.userAgent = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36';
 
+        //判断是否重新加载
         if (cached) {
             let now = new Date().getTime();
             if (now - cached.time > 30 * 60 * 1000) {
@@ -57,7 +59,8 @@ class MainController extends Controller {
                 }
             });
             let text = await res.text();
-            let items = this.parseData(text, url);
+            let items = this.parseData(text, url); //获取信息
+            //存至本地作为缓存
             localStorage['cache_' + this.id] = JSON.stringify({
                 time: new Date().getTime(),
                 items: items,
