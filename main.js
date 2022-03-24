@@ -96,14 +96,41 @@ class MainController extends Controller {
             this.data.loading = true;
         });
         try {
+            let items = [];
             let url = this.makeURL(0);
-            let res = await fetch(url, {
-                headers: {
-                    'User-Agent': this.userAgent,
+            if (this.id == 'recommend') {
+                this.text_recommend = []; //储存推荐页的json数据
+                this.list_recommend = [47, 52, 53, 54, 55, 56]; //推荐页类别标志
+                for (let id of this.list_recommend) {
+                    if (id != 56) {
+                        let url_rcommend = `https://nnv3api.muwai.com/recommend/batchUpdate?category_id=${id}`;
+                        let res = await fetch(url_rcommend, {
+                            headers: {
+                                'User-Agent': this.userAgent,
+                            }
+                        });
+                        let text = await res.text();
+                        this.text_recommend.push(text);
+                    } else {
+                        let res = await fetch(url, {
+                            headers: {
+                                'User-Agent': this.userAgent,
+                            }
+                        });
+                        let text = await res.text();
+                        this.text_recommend.push(text);
+                    }
                 }
-            });
-            let text = await res.text();
-            let items = this.parseData(text, url); //获取信息
+                items = this.parseRecommendData();
+            } else {
+                let res = await fetch(url, {
+                    headers: {
+                        'User-Agent': this.userAgent,
+                    }
+                });
+                let text = await res.text();
+                items = this.parseData(text, url); //获取信息
+            }
             this.page = 0;
             //存至本地作为缓存
             localStorage['cache_' + this.id] = JSON.stringify({
@@ -134,9 +161,7 @@ class MainController extends Controller {
     parseData(text, url) {
         if (this.id == 'update') {
             return this.parseUpdateData(text, url);
-        } else if (this.id == 'recommend') {
-            return this.parseRecommendData(text, url);
-        } else {
+        } else if (this.id != 'recommend') {
             return this.parseRankData(text, url);
         }
     }
@@ -162,47 +187,48 @@ class MainController extends Controller {
     }
 
     //推荐页面，通过api获取
-    parseRecommendData(text, url){
-        const json = JSON.parse(text);
+    parseRecommendData(){
         let results = [];
-        for (let category of json) {
-            let list = [47, 52, 53, 54, 55, 56]; //限定类别
-            let image_list = ['https://m.dmzj.com/images/icon_h2_1.png', 'https://m.dmzj.com/images/icon_h2_5.png',
+        let image_list = ['https://m.dmzj.com/images/icon_h2_1.png', 'https://m.dmzj.com/images/icon_h2_5.png',
                             'https://m.dmzj.com/images/icon_h2_6.png', 'https://m.dmzj.com/images/icon_h2_7.png',
                             'https://m.dmzj.com/images/icon_h2_8.png', 'https://m.dmzj.com/images/icon_h2_9.png'];
-            if (list.indexOf(category['category_id']) > -1){
+        for (let text of this.text_recommend) {
+            let json = JSON.parse(text);
+            if (this.list_recommend[this.text_recommend.indexOf(text)] == 56) {
                 results.push({
                     header: true,
-                    title: category['title'],
-                    picture: image_list[list.indexOf(category['category_id'])]
+                    title: json[8]['title'],
+                    picture: image_list[this.text_recommend.indexOf(text)]
                 });
-                let items = category['data'];
-                if (category['category_id'] == 56) {
-                    for (let item of items) {
-                        results.push({
-                            title: item['title'],
-                            subtitle: item['authors'],
-                            picture: item['cover'],
-                            pictureHeaders: {
-                                Referer: url
-                            },
-                            link: `http://api.dmzj.com/dynamic/comicinfo/${item['id']}.json`,
-                        });
-                    }
-                } else {
-                    for (let item of items) {
-                        let sub_title = item['sub_title'];
-                        sub_title = sub_title.substring(3,sub_title.length)
-                        results.push({
-                            title: item['title'],
-                            subtitle: sub_title,
-                            picture: item['cover'],
-                            pictureHeaders: {
-                                Referer: url
-                            },
-                            link: `http://api.dmzj.com/dynamic/comicinfo/${item['obj_id']}.json`,
-                        });
-                    }
+                for (let data of json[8]['data']) {
+                    results.push({
+                        title: data['title'],
+                        subtitle: data['authors'],
+                        picture: data['cover'],
+                        pictureHeaders: {
+                            Referer: url
+                        },
+                        link: `http://api.dmzj.com/dynamic/comicinfo/${data['id']}.json`,
+                    });
+                }
+            } else {
+                results.push({
+                    header: true,
+                    title: json['data']['title'],
+                    picture: image_list[this.text_recommend.indexOf(text)]
+                });
+                for (let data of json['data']['data']) {
+                    let sub_title = data['sub_title'];
+                    sub_title = sub_title.substring(3,sub_title.length)
+                    results.push({
+                        title: data['title'],
+                        subtitle: sub_title,
+                        picture: data['cover'],
+                        pictureHeaders: {
+                            Referer: url
+                        },
+                        link: `http://api.dmzj.com/dynamic/comicinfo/${data['obj_id']}.json`,
+                    });
                 }
             }
         }
