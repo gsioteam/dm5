@@ -1,9 +1,11 @@
+const PER_PAGE = 40; //每页最多数量
+
 class MainController extends Controller {
 
     load(data) {
         this.id = data.id;
         this.url = data.url;
-        this.page = 1;
+        this.page = 0;
 
         //查找缓存
         var cached = this.readCache();
@@ -17,7 +19,7 @@ class MainController extends Controller {
         this.data = {
             list: list,
             loading: false,
-            hasMore: false
+            hasMore: this.id !== 'recommend'
         };
 
         this.userAgent = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36';
@@ -45,7 +47,46 @@ class MainController extends Controller {
     }
 
     async onLoadMore() {
+        this.setState(() => {
+            this.data.loading = true;
+        });
+        try {
 
+            let page = this.page + 1;
+            let url = this.makeURL(page);
+            let res = await fetch(url, {
+                headers: {
+                    'User-Agent': this.userAgent,
+                }
+            });
+            let text = await res.text();
+            this.page = page;
+            let items = this.parseData(text, url);
+    
+            this.setState(()=>{
+                for (let item of items) {
+                    this.data.list.push(item);
+                }
+                this.data.loading = false;
+                this.data.hasMore = items.length >= PER_PAGE;
+            });
+        } catch (e) {
+            showToast(`${e}\n${e.stack}`);
+            this.setState(()=>{
+                this.data.loading = false;
+            });
+        }
+        
+    }
+
+    makeURL(page) {
+        if (this.id == 'rank' && page != 0) {
+            return this.url + `total-block-${page + 1}.shtml`;
+        } else if (this.id == 'update') {
+            return this.url.replace('update_1', `update_${page + 1}`);
+        } else {
+            return this.url;
+        }
     }
 
     async reload() {
@@ -53,7 +94,7 @@ class MainController extends Controller {
             this.data.loading = true;
         });
         try {
-            let url = this.url;
+            let url = this.makeURL(0);
             let res = await fetch(url, {
                 headers: {
                     'User-Agent': this.userAgent,
@@ -61,6 +102,7 @@ class MainController extends Controller {
             });
             let text = await res.text();
             let items = this.parseData(text, url); //获取信息
+            this.page = 0;
             //存至本地作为缓存
             localStorage['cache_' + this.id] = JSON.stringify({
                 time: new Date().getTime(),
@@ -69,7 +111,7 @@ class MainController extends Controller {
             this.setState(()=>{
                 this.data.list = items;
                 this.data.loading = false;
-                this.data.hasMore = false;
+                this.data.hasMore = this.id !== 'recommend' && items.length >= PER_PAGE;
             });
         } catch (e) {
             showToast(`${e}\n${e.stack}`);
