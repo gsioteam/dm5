@@ -17,6 +17,7 @@ class BookController extends Controller {
             title: this.data.title,
             subtitle: this.data.subtitle,
             picture: this.data.picture,
+            summary: this.data.summary,
             page: 'book',
             data: {
                 link: this.url,
