@@ -219,20 +219,18 @@ class MainController extends Controller {
                     title: json['data']['title'],
                     picture: image_list[this.text_recommend.indexOf(text)]
                 });
-                for (let data of json['data']['data']) {
-                    if (data['type'] == 1) {
-                        let sub_title = data['sub_title'];
-                        sub_title = sub_title.substring(3,sub_title.length)
-                        results.push({
-                            title: data['title'],
-                            subtitle: sub_title,
-                            picture: data['cover'],
-                            pictureHeaders: {
-                                Referer: url
-                            },
-                            link: `http://api.dmzj.com/dynamic/comicinfo/${data['obj_id']}.json`,
-                        });
-                    }
+                for (let data of json['data']['data']){
+                    let sub_title = data['sub_title'];
+                    sub_title = sub_title.substring(3,sub_title.length)
+                    results.push({
+                        title: data['title'],
+                        subtitle: sub_title,
+                        picture: data['cover'],
+                        pictureHeaders: {
+                            Referer: url
+                        },
+                        link: `http://api.dmzj.com/dynamic/comicinfo/${data['obj_id']}.json`,
+                    });
                 }
             }
         }
