@@ -86,8 +86,11 @@ class BookController extends Controller {
         });
         try {
             let url = this.url + '?waring=1';
-            let data = await bookFetch(url);
-    
+            try {
+                var data = await bookFetch(url);
+            } catch (e) {
+                showToast(`漫画资源解析错误或不存在`);
+            }
             let now = new Date().getTime();
             data.time = now;
             localStorage[`book:${this.url}`] = JSON.stringify(data);

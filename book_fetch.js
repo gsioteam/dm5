@@ -25,6 +25,12 @@ function parseData(text, url) {
 
 module.exports = async function(url) {
     if (url.search('json') == -1) {
+        let res = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36',
+            }
+        });
+        let text = await res.text();
         const doc = HTMLParser.parse(text);
         let book_id = doc.querySelector('#comic_id').textContent;
         url = `http://api.dmzj.com/dynamic/comicinfo/${book_id}.json`
