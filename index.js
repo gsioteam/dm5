@@ -37,6 +37,11 @@ class IndexController extends Controller {
                     "id": "new",
                     "url": "https://v3api.dmzj.com/v3/recommend.json"
                 },
+                {
+                    "title": "最新更新",
+                    "id": "update",
+                    "url": "https://manhua.dmzj.com/update_1.shtml"
+                },
             ]
         };
     }

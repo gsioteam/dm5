@@ -87,6 +87,9 @@ class MainController extends Controller {
     }
 
     parseData(text, url) {
+        if (this.id == 'update') {
+            return this.parseUpdateData(text, url);
+        }
         const json = JSON.parse(text);
         let items = []
         if (this.id === 'recently') {
@@ -123,6 +126,24 @@ class MainController extends Controller {
             }
         }
         return results;
+    }
+
+    parseUpdateData(text, url){
+        const doc = HTMLParser.parse(text);
+        let list = doc.querySelectorAll('.boxdiv1');
+        let results = [];
+        for (let node of list) {
+            let info = node.querySelector('a');
+            results.push({
+                title: info.getAttribute('title'),
+                link: `https://manhua.dmzj.com/${info.getAttribute('href')}`,
+                picture: node.querySelector('img').getAttribute('src'),
+                pictureHeaders: {
+                    Referer: url
+                },
+                subtitle: '',
+            });
+        }
     }
 }
 
