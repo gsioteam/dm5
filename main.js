@@ -91,20 +91,14 @@ class MainController extends Controller {
         let items = []
         if (this.id === 'recently') {
             items = json[1]['data'];
-        } else if (this.id === 'chinese') {
-            items = json[4]['data'];
-        } else if (this.id === 'american') {
-            items = json[5]['data'];
-        } else if (this.id === 'ongoing') {
-            items = json[6]['data'];
-        } else if (this.id === 'webtoon') {
-            items = json[7]['data'];
         } else if (this.id === 'new') {
             items = json[8]['data'];
+        } else {
+            items = json['data']['data']
         }
         let results = [];
         for (let item of items) {
-            if (this.id == 'new'){
+            if (this.id == 'new' || this.id == 'random'){
                 results.push({
                     title: item['title'],
                     subtitle: item['authors'],
@@ -115,9 +109,11 @@ class MainController extends Controller {
                     link: `http://api.dmzj.com/dynamic/comicinfo/${item['id']}.json`,
                 });
             } else {
+                let sub_title = item['sub_title'];
+                sub_title = sub_title.substring(3,sub_title.length)
                 results.push({
                     title: item['title'],
-                    subtitle: item['sub_title'],
+                    subtitle: sub_title,
                     picture: item['cover'],
                     pictureHeaders: {
                         Referer: url
