@@ -84,8 +84,10 @@ class MainController extends Controller {
             return this.url + `total-block-${page + 1}.shtml`;
         } else if (this.id == 'update') {
             return this.url.replace('update_1', `update_${page + 1}`);
-        } else {
+        } else if (this.id == 'recommend') {
             return this.url;
+        } else {
+            return this.url.replace('block-1', `block-${page + 1}`);
         }
     }
 
@@ -134,7 +136,7 @@ class MainController extends Controller {
             return this.parseUpdateData(text, url);
         } else if (this.id == 'recommend') {
             return this.parseRecommendData(text, url);
-        } else if (this.id == 'rank') {
+        } else {
             return this.parseRankData(text, url);
         }
     }
