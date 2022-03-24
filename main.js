@@ -3,6 +3,7 @@ class MainController extends Controller {
     load(data) {
         this.id = data.id;
         this.url = data.url;
+        this.page = 1;
 
         //查找缓存
         var cached = this.readCache();
@@ -89,41 +90,39 @@ class MainController extends Controller {
     parseData(text, url) {
         if (this.id == 'update') {
             return this.parseUpdateData(text, url);
-        }
-        const json = JSON.parse(text);
-        let items = []
-        if (this.id === 'recently') {
-            items = json[1]['data'];
-        } else {
-            items = json['data']['data']
-        }
-        let results = [];
-        for (let item of items) {
-            if (this.id == 'new' || this.id == 'random'){
-                results.push({
-                    title: item['title'],
-                    subtitle: item['authors'],
-                    picture: item['cover'],
-                    pictureHeaders: {
-                        Referer: url
-                    },
-                    link: `http://api.dmzj.com/dynamic/comicinfo/${item['id']}.json`,
-                });
-            } else {
-                let sub_title = item['sub_title'];
-                sub_title = sub_title.substring(3,sub_title.length)
-                results.push({
-                    title: item['title'],
-                    subtitle: sub_title,
-                    picture: item['cover'],
-                    pictureHeaders: {
-                        Referer: url
-                    },
-                    link: `http://api.dmzj.com/dynamic/comicinfo/${item['obj_id']}.json`,
-                });
-            }
+        } else if (this.id == 'recommend') {
+            return this.parseRecommendData(text, url);
         }
         return results;
+    }
+
+    parseRecommendData(text, url){
+        const json = JSON.parse(text);
+        let results = [];
+        for (let category of json) {
+            let list = [47, 52, 53, 54, 55]; //限定类别
+            if (list.indexOf(category['category_id']) > -1){
+                results.push({
+                    header: true,
+                    title: category['title'],
+                    picture: 'https://css99tel.cdndm5.com/v202008141414/dm5/images/sd/index-title-1.png'
+                });
+                let items = category['date'];
+                for (let item of items) {
+                    let sub_title = item['sub_title'];
+                    sub_title = sub_title.substring(3,sub_title.length)
+                    results.push({
+                        title: item['title'],
+                        subtitle: sub_title,
+                        picture: item['cover'],
+                        pictureHeaders: {
+                            Referer: url
+                        },
+                        link: `http://api.dmzj.com/dynamic/comicinfo/${item['obj_id']}.json`,
+                    });
+                }
+            }
+        }
     }
 
     parseUpdateData(text, url){
