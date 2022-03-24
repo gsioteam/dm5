@@ -107,7 +107,7 @@ class MainController extends Controller {
                     title: category['title'],
                     picture: 'https://css99tel.cdndm5.com/v202008141414/dm5/images/sd/index-title-1.png'
                 });
-                let items = category['date'];
+                let items = category['data'];
                 for (let item of items) {
                     let sub_title = item['sub_title'];
                     sub_title = sub_title.substring(3,sub_title.length)
