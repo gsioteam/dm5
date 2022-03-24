@@ -94,8 +94,6 @@ class MainController extends Controller {
         let items = []
         if (this.id === 'recently') {
             items = json[1]['data'];
-        } else if (this.id === 'new') {
-            items = json[8]['data'];
         } else {
             items = json['data']['data']
         }
@@ -141,7 +139,7 @@ class MainController extends Controller {
                 pictureHeaders: {
                     Referer: url
                 },
-                subtitle: '',
+                subtitle: node.querySelector('.gray12').textContent,
             });
         }
         return results

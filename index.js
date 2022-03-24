@@ -33,11 +33,6 @@ class IndexController extends Controller {
                     "url": "https://nnv3api.muwai.com/recommend/batchUpdate?category_id=55"
                 },
                 {
-                    "title": "最新上架",
-                    "id": "new",
-                    "url": "https://v3api.dmzj.com/v3/recommend.json"
-                },
-                {
                     "title": "最新更新",
                     "id": "update",
                     "url": "https://manhua.dmzj.com/update_1.shtml"

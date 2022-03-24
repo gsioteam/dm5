@@ -30,6 +30,16 @@ module.exports = async function(url) {
         }
     });
     let text = await res.text();
-
+    if (url.substring(url.length-4,url.length) != 'json') {
+        const doc = HTMLParser.parse(text);
+        let book_id = doc.querySelector('#comic_id').textContent;
+        let book_url = `http://api.dmzj.com/dynamic/comicinfo/${book_id}.json`
+        res = await fetch(book_url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36',
+            }
+        });
+        text = await res.text();
+    }
     return parseData(text, url);
 }
