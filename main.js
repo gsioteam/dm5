@@ -123,6 +123,7 @@ class MainController extends Controller {
                 }
             }
         }
+        return results;
     }
 
     parseUpdateData(text, url){
