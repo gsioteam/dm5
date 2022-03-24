@@ -117,20 +117,48 @@ class SearchController extends Controller {
 
     //获取查找结果
     async request(url) {
-        let res = await fetch(url);
-        let text = await res.text();
-        let json = JSON.parse(text.substring(20,text.length-1));
         let items = [];
-        for (let result of json) {
+        //如果查找关键字为id:数字，则显示为此id的漫画及其相似推荐
+        if (url.search("id:") != -1) {
+            url = `http://api.dmzj.com/dynamic/comicinfo/${url.substring(46,url.length)}.json`;
+            let res = await fetch(url);
+            let text = await res.text();
+            let json = JSON.parse(text);
             items.push({
-                title: result['comic_name'],
-                subtitle: result['comic_author'],
-                picture: result['comic_cover'],
+                title: json['data']['info']['title'],
+                subtitle: json['data']['info']['authors'],
+                picture: json['data']['info']['cover'],
                 pictureHeaders: {
                     Referer: 'http://manhua.dmzj.com/'
                 },
-                link: `http://api.dmzj.com/dynamic/comicinfo/${result['id']}.json`,
+                link: `http://api.dmzj.com/dynamic/comicinfo/${json['data']['info']['id']}.json`,
             });
+            for (let similar in json['data']['similar']) {
+                items.push({
+                    title: similar['title'],
+                    subtitle: '',
+                    picture: similar['cover'],
+                    pictureHeaders: {
+                        Referer: 'http://manhua.dmzj.com/'
+                    },
+                    link: `http://api.dmzj.com/dynamic/comicinfo/${similar['id']}.json`,
+                });
+            }
+        } else {
+            let res = await fetch(url);
+            let text = await res.text();
+            let json = JSON.parse(text.substring(20,text.length-1));
+            for (let result of json) {
+                items.push({
+                    title: result['comic_name'],
+                    subtitle: result['comic_author'],
+                    picture: result['comic_cover'],
+                    pictureHeaders: {
+                        Referer: 'http://manhua.dmzj.com/'
+                    },
+                    link: `http://api.dmzj.com/dynamic/comicinfo/${result['id']}.json`,
+                });
+            }
         }
         return items;
     }
