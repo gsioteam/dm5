@@ -133,7 +133,7 @@ class SearchController extends Controller {
                 },
                 link: `http://api.dmzj.com/dynamic/comicinfo/${json['data']['info']['id']}.json`,
             });
-            for (let similar in json['data']['similar']) {
+            for (let similar of json['data']['similar']) {
                 items.push({
                     title: similar['title'],
                     subtitle: '',

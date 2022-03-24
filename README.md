@@ -1,2 +1,3 @@
-# plugin_demo
-A plug-in demo, and you can use this project as a scaffolding to start writing a new plugin.
+# Kinoko dmzj plugin
+
+Kinoko的dmzj插件。搜索时可通过`id:number`来搜索对应id的漫画，同时会显示出此漫画的相似漫画。
