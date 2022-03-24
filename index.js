@@ -12,6 +12,11 @@ class IndexController extends Controller {
                     "id": "update",
                     "url": "https://manhua.dmzj.com/update_1.shtml"
                 },
+                {
+                    "title": "排行",
+                    "id": "rank",
+                    "url": "https://manhua.dmzj.com/rank/"
+                },
             ]
         };
     }

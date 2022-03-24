@@ -92,6 +92,26 @@ class MainController extends Controller {
             return this.parseUpdateData(text, url);
         } else if (this.id == 'recommend') {
             return this.parseRecommendData(text, url);
+        } else if (this.id == 'rank') {
+            return this.parseRankData(text, url);
+        }
+    }
+
+    parseRankData(text, url){
+        const doc = HTMLParser.parse(text);
+        let list = doc.querySelectorAll('.middlerighter1');
+        let results = [];
+        for (let node of list) {
+            let info = node.querySelector('a');
+            results.push({
+                title: info.getAttribute('title'),
+                link: info.getAttribute('href'),
+                picture: node.querySelector('img').getAttribute('src'),
+                pictureHeaders: {
+                    Referer: url
+                },
+                subtitle: node.querySelectorAll('.righter-mr')[1].querySelector('span').textContent,
+            });
         }
         return results;
     }
@@ -142,7 +162,7 @@ class MainController extends Controller {
                 subtitle: node.querySelector('.gray12').textContent,
             });
         }
-        return results
+        return results;
     }
 }
 
