@@ -1,4 +1,4 @@
-const PER_PAGE = 40; //每页最多数量
+const PAGE_NUM = 10; //最大页数
 
 class MainController extends Controller {
 
@@ -68,7 +68,7 @@ class MainController extends Controller {
                     this.data.list.push(item);
                 }
                 this.data.loading = false;
-                this.data.hasMore = items.length >= PER_PAGE;
+                this.data.hasMore = this.page + 1 < PAGE_NUM;
             });
         } catch (e) {
             showToast(`${e}\n${e.stack}`);
@@ -111,7 +111,7 @@ class MainController extends Controller {
             this.setState(()=>{
                 this.data.list = items;
                 this.data.loading = false;
-                this.data.hasMore = this.id !== 'recommend' && items.length >= PER_PAGE;
+                this.data.hasMore = this.id !== 'recommend' && this.page + 1 < PAGE_NUM;
             });
         } catch (e) {
             showToast(`${e}\n${e.stack}`);
@@ -139,6 +139,7 @@ class MainController extends Controller {
         }
     }
 
+    //排行页面，通过网页获取
     parseRankData(text, url){
         const doc = HTMLParser.parse(text);
         let list = doc.querySelectorAll('.middlerighter1');
@@ -158,36 +159,55 @@ class MainController extends Controller {
         return results;
     }
 
+    //推荐页面，通过api获取
     parseRecommendData(text, url){
         const json = JSON.parse(text);
         let results = [];
         for (let category of json) {
-            let list = [47, 52, 53, 54, 55]; //限定类别
+            let list = [47, 52, 53, 54, 55, 56]; //限定类别
+            let image_list = ['https://m.dmzj.com/images/icon_h2_1.png', 'https://m.dmzj.com/images/icon_h2_5.png',
+                            'https://m.dmzj.com/images/icon_h2_6.png', 'https://m.dmzj.com/images/icon_h2_7.png',
+                            'https://m.dmzj.com/images/icon_h2_8.png', 'https://m.dmzj.com/images/icon_h2_9.png'];
             if (list.indexOf(category['category_id']) > -1){
                 results.push({
                     header: true,
                     title: category['title'],
-                    picture: 'https://css99tel.cdndm5.com/v202008141414/dm5/images/sd/index-title-1.png'
+                    picture: image_list[list.indexOf(category['category_id'])]
                 });
                 let items = category['data'];
-                for (let item of items) {
-                    let sub_title = item['sub_title'];
-                    sub_title = sub_title.substring(3,sub_title.length)
-                    results.push({
-                        title: item['title'],
-                        subtitle: sub_title,
-                        picture: item['cover'],
-                        pictureHeaders: {
-                            Referer: url
-                        },
-                        link: `http://api.dmzj.com/dynamic/comicinfo/${item['obj_id']}.json`,
-                    });
+                if (category['category_id'] == 56) {
+                    for (let item of items) {
+                        results.push({
+                            title: item['title'],
+                            subtitle: item['authors'],
+                            picture: item['cover'],
+                            pictureHeaders: {
+                                Referer: url
+                            },
+                            link: `http://api.dmzj.com/dynamic/comicinfo/${item['id']}.json`,
+                        });
+                    }
+                } else {
+                    for (let item of items) {
+                        let sub_title = item['sub_title'];
+                        sub_title = sub_title.substring(3,sub_title.length)
+                        results.push({
+                            title: item['title'],
+                            subtitle: sub_title,
+                            picture: item['cover'],
+                            pictureHeaders: {
+                                Referer: url
+                            },
+                            link: `http://api.dmzj.com/dynamic/comicinfo/${item['obj_id']}.json`,
+                        });
+                    }
                 }
             }
         }
         return results;
     }
 
+    //更新页面，通过网页获取
     parseUpdateData(text, url){
         const doc = HTMLParser.parse(text);
         let list = doc.querySelectorAll('.boxdiv1');
