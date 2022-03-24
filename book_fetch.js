@@ -12,7 +12,7 @@ function parseData(text, url) {
         };
         item.title = link['chapter_name'];
         let createtime = new Date(parseInt(link['createtime']) * 1000).toLocaleString().replace(/:\d{1,2}$/,' ');
-        item.subtitle = createtime;
+        item.subtitle = createtime.substring(0, 10);
         list.push(item);
     }
 
