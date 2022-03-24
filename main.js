@@ -144,6 +144,7 @@ class MainController extends Controller {
                 subtitle: '',
             });
         }
+        return results
     }
 }
 
