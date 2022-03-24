@@ -201,15 +201,17 @@ class MainController extends Controller {
                     picture: image_list[this.text_recommend.indexOf(text)]
                 });
                 for (let data of json[8]['data']) {
-                    results.push({
-                        title: data['title'],
-                        subtitle: data['authors'],
-                        picture: data['cover'],
-                        pictureHeaders: {
-                            Referer: url
-                        },
-                        link: `http://api.dmzj.com/dynamic/comicinfo/${data['id']}.json`,
-                    });
+                    if (data['type'] == 1) {
+                        results.push({
+                            title: data['title'],
+                            subtitle: data['authors'],
+                            picture: data['cover'],
+                            pictureHeaders: {
+                                Referer: url
+                            },
+                            link: `http://api.dmzj.com/dynamic/comicinfo/${data['id']}.json`,
+                        });
+                    }
                 }
             } else {
                 results.push({
@@ -218,17 +220,19 @@ class MainController extends Controller {
                     picture: image_list[this.text_recommend.indexOf(text)]
                 });
                 for (let data of json['data']['data']) {
-                    let sub_title = data['sub_title'];
-                    sub_title = sub_title.substring(3,sub_title.length)
-                    results.push({
-                        title: data['title'],
-                        subtitle: sub_title,
-                        picture: data['cover'],
-                        pictureHeaders: {
-                            Referer: url
-                        },
-                        link: `http://api.dmzj.com/dynamic/comicinfo/${data['obj_id']}.json`,
-                    });
+                    if (data['type'] == 1) {
+                        let sub_title = data['sub_title'];
+                        sub_title = sub_title.substring(3,sub_title.length)
+                        results.push({
+                            title: data['title'],
+                            subtitle: sub_title,
+                            picture: data['cover'],
+                            pictureHeaders: {
+                                Referer: url
+                            },
+                            link: `http://api.dmzj.com/dynamic/comicinfo/${data['obj_id']}.json`,
+                        });
+                    }
                 }
             }
         }

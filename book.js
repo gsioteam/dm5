@@ -85,12 +85,9 @@ class BookController extends Controller {
             this.data.loading = true;
         });
         try {
-            let url = this.url + '?waring=1';
-            try {
-                var data = await bookFetch(url);
-            } catch (e) {
-                showToast(`漫画资源解析错误或不存在`);
-            }
+            let url = this.url;
+            let data = await bookFetch(url);
+    
             let now = new Date().getTime();
             data.time = now;
             localStorage[`book:${this.url}`] = JSON.stringify(data);
@@ -103,7 +100,7 @@ class BookController extends Controller {
                 this.data.loading = false;
             });
         } catch (e) {
-            showToast(`${e}\n${e.stack}`);
+            showToast('漫画资源解析错误或不存在');
             this.setState(()=>{
                 this.data.loading = false;
             });
