@@ -121,7 +121,7 @@ class MainController extends Controller {
                         this.text_recommend.push(text);
                     }
                 }
-                items = this.parseRecommendData();
+                items = this.parseRecommendData(url);
             } else {
                 let res = await fetch(url, {
                     headers: {
@@ -187,7 +187,7 @@ class MainController extends Controller {
     }
 
     //推荐页面，通过api获取
-    parseRecommendData(){
+    parseRecommendData(url){
         let results = [];
         let image_list = ['https://m.dmzj.com/images/icon_h2_1.png', 'https://m.dmzj.com/images/icon_h2_5.png',
                             'https://m.dmzj.com/images/icon_h2_6.png', 'https://m.dmzj.com/images/icon_h2_7.png',
