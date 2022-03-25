@@ -175,7 +175,8 @@ class MainController extends Controller {
     //分类界面，通过网页获取
     parseCategoryData(text, url) {
         const doc = HTMLParser.parse(text);
-        let list = doc.querySelector('.tcaricature_block').querySelectorAll('ul');
+        let list = doc.querySelector('.tcaricature_block2').querySelectorAll('ul');
+        showToast(`${list[0]}`);
         for (let node of list) {
             let info = node.querySelector('a');
             results.push({
