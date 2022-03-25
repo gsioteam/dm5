@@ -35,7 +35,7 @@ class MainController extends Controller {
     }
 
     async onPressed(index) {
-        if (this.id == 'subject') {
+        if (this.id == 'subject' || this.data.list[index].list) {
             await this.navigateTo('list', {
                 data: this.data.list[index]
             });
@@ -112,7 +112,7 @@ class MainController extends Controller {
             let url = this.makeURL(0);
             if (this.id == 'recommend') {
                 this.text_recommend = []; //储存推荐页的json数据
-                this.list_recommend = [47, 52, 53, 54, 55, 56]; //推荐页类别标志
+                this.list_recommend = [47, 52, 53, 55, 51, 54, 56]; //推荐页类别标志
                 for (let id of this.list_recommend) {
                     if (id != 56) {
                         let url_rcommend = `https://nnv3api.muwai.com/recommend/batchUpdate?category_id=${id}`;
@@ -245,8 +245,9 @@ class MainController extends Controller {
     parseRecommendData(url){
         let results = [];
         let image_list = ['https://m.dmzj.com/images/icon_h2_1.png', 'https://m.dmzj.com/images/icon_h2_5.png',
-                            'https://m.dmzj.com/images/icon_h2_6.png', 'https://m.dmzj.com/images/icon_h2_7.png',
-                            'https://m.dmzj.com/images/icon_h2_8.png', 'https://m.dmzj.com/images/icon_h2_9.png'];
+                            'https://m.dmzj.com/images/icon_h2_6.png', 'https://m.dmzj.com/images/icon_h2_8.png',
+                            'https://m.dmzj.com/images/icon_h2_4.png', 'https://m.dmzj.com/images/icon_h2_7.png',
+                            'https://m.dmzj.com/images/icon_h2_9.png'];
         for (let text of this.text_recommend) {
             let json = JSON.parse(text);
             if (this.list_recommend[this.text_recommend.indexOf(text)] == 56) {
@@ -264,6 +265,24 @@ class MainController extends Controller {
                             Referer: url
                         },
                         link: `http://api.dmzj.com/dynamic/comicinfo/${data['id']}.json`,
+                    });
+                }
+            } else if (this.list_recommend[this.text_recommend.indexOf(text)] == 51) {
+                results.push({
+                    header: true,
+                    title: json['data']['title'],
+                    picture: image_list[this.text_recommend.indexOf(text)]
+                });
+                for (let data of json['data']['data']){
+                    results.push({
+                        list: true,
+                        title: data['title'],
+                        subtitle: data['sub_title'],
+                        picture: data['cover'],
+                        pictureHeaders: {
+                            Referer: url
+                        },
+                        link: `https://nnv3api.muwai.com/UCenter/author/${data['obj_id']}.json`,
                     });
                 }
             } else {

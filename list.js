@@ -60,16 +60,30 @@ class ListController extends Controller {
     parseData(text, url) {
         const json = JSON.parse(text);
         let results = [];
-        for (let comic of json['data']['comics']) {
-            results.push({
-                title: comic['name'],
-                link: `http://api.dmzj.com/dynamic/comicinfo/${comic['id']}.json`,
-                picture: comic['cover'],
-                pictureHeaders: {
-                    Referer: 'http://manhua.dmzj.com/'
-                },
-                subtitle: comic['recommend_brief'],
-            });
+        if (url.search('/UCenter/author/') == -1) { //若不为作者信息
+            for (let comic of json['data']['comics']) {
+                results.push({
+                    title: comic['name'],
+                    link: `http://api.dmzj.com/dynamic/comicinfo/${comic['id']}.json`,
+                    picture: comic['cover'],
+                    pictureHeaders: {
+                        Referer: 'http://manhua.dmzj.com/'
+                    },
+                    subtitle: comic['recommend_brief'],
+                });
+            }
+        } else {
+            for (let comic of json['data']) {
+                results.push({
+                    title: comic['name'],
+                    link: `http://api.dmzj.com/dynamic/comicinfo/${comic['id']}.json`,
+                    picture: comic['cover'],
+                    pictureHeaders: {
+                        Referer: 'http://manhua.dmzj.com/'
+                    },
+                    subtitle: '',
+                });
+            }
         }
         return results;
     }
