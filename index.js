@@ -8,6 +8,31 @@ class IndexController extends Controller {
                     "url": "https://v3api.dmzj.com/v3/recommend.json"
                 },
                 {
+                    "title": "少年漫画",
+                    "id": "category-shaonian",
+                    "url": "http://manhua.dmzj.com/tags/shaonian.shtml"
+                },
+                {
+                    "title": "少女漫画",
+                    "id": "category-shaonv",
+                    "url": "http://manhua.dmzj.com/tags/shaonv.shtml"
+                },
+                {
+                    "title": "青年漫画",
+                    "id": "category-qingnian",
+                    "url": "http://manhua.dmzj.com/tags/qingnian.shtml"
+                },
+                {
+                    "title": "日漫",
+                    "id": "category-riben",
+                    "url": "http://manhua.dmzj.com/tags/riben.shtml"
+                },
+                {
+                    "title": "美漫",
+                    "id": "category-oumei",
+                    "url": "http://manhua.dmzj.com/tags/oumei.shtml"
+                },
+                {
                     "title": "更新",
                     "id": "update",
                     "url": "https://manhua.dmzj.com/update_1.shtml"

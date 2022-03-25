@@ -1,5 +1,3 @@
-const PAGE_NUM = 10; //最大页数
-
 class MainController extends Controller {
 
     load(data) {
@@ -19,7 +17,7 @@ class MainController extends Controller {
         this.data = {
             list: list,
             loading: false,
-            hasMore: this.id !== 'recommend'
+            hasMore: this.id != 'recommend'
         };
 
         this.userAgent = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36';
@@ -68,10 +66,10 @@ class MainController extends Controller {
                     this.data.list.push(item);
                 }
                 this.data.loading = false;
-                this.data.hasMore = this.page + 1 < PAGE_NUM;
+                this.data.hasMore = this.id != 'recommend' && items.length > 0;
             });
         } catch (e) {
-            showToast(`${e}\n${e.stack}`);
+            showToast('没有更多了');
             this.setState(()=>{
                 this.data.loading = false;
             });
@@ -80,14 +78,20 @@ class MainController extends Controller {
     }
 
     makeURL(page) {
-        if (this.id == 'rank-total' && page != 0) {
-            return this.url + `total-block-${page + 1}.shtml`;
-        } else if (this.id == 'update') {
-            return this.url.replace('update_1', `update_${page + 1}`);
-        } else if (this.id == 'recommend') {
+        if (page == 0) {
             return this.url;
         } else {
-            return this.url.replace('block-1', `block-${page + 1}`);
+            if (this.id == 'rank-total') {
+                return this.url + `total-block-${page + 1}.shtml`;
+            } else if (this.id == 'update') {
+                return this.url.replace('update_1', `update_${page + 1}`);
+            } else if (this.id.search('rank') != -1) {
+                return this.url.replace('block-1', `block-${page + 1}`);
+            } else if (this.id.search('category') != -1) {
+                return this.url.replace('.shtml', `/${page + 1}.shtml`);
+            } else {
+                return this.url;
+            }
         }
     }
 
@@ -140,10 +144,10 @@ class MainController extends Controller {
             this.setState(()=>{
                 this.data.list = items;
                 this.data.loading = false;
-                this.data.hasMore = this.id !== 'recommend' && this.page + 1 < PAGE_NUM;
+                this.data.hasMore = this.id != 'recommend' && items.length > 0;
             });
         } catch (e) {
-            showToast(`${e}\n${e.stack}`);
+            showToast('没有更多了');
             this.setState(()=>{
                 this.data.loading = false;
             });
@@ -161,8 +165,28 @@ class MainController extends Controller {
     parseData(text, url) {
         if (this.id == 'update') {
             return this.parseUpdateData(text, url);
-        } else if (this.id != 'recommend') {
+        } else if (this.id.search('rank') != -1) {
             return this.parseRankData(text, url);
+        } else if (this.id.search('category') != -1) {
+            return this.parseCategoryData(text, url);
+        }
+    }
+
+    //分类界面，通过网页获取
+    parseCategoryData(text, url) {
+        const doc = HTMLParser.parse(text);
+        let list = doc.querySelector('.tcaricature_block').querySelectorAll('ul');
+        for (let node of list) {
+            let info = node.querySelector('a');
+            results.push({
+                title: info.getAttribute('title'),
+                link: info.getAttribute('href'),
+                picture: node.querySelector('img').getAttribute('src'),
+                pictureHeaders: {
+                    Referer: url
+                },
+                subtitle: node.querySelectorAll('.righter-mr')[1].querySelector('span').textContent,
+            });
         }
     }
 
@@ -175,12 +199,12 @@ class MainController extends Controller {
             let info = node.querySelector('a');
             results.push({
                 title: info.getAttribute('title'),
-                link: info.getAttribute('href'),
+                link: `https://manhua.dmzj.com${info.getAttribute('href')}`,
                 picture: node.querySelector('img').getAttribute('src'),
                 pictureHeaders: {
                     Referer: url
                 },
-                subtitle: node.querySelectorAll('.righter-mr')[1].querySelector('span').textContent,
+                subtitle: node.querySelector('.black_font12').textContent,
             });
         }
         return results;
