@@ -80,7 +80,7 @@ class MainController extends Controller {
     }
 
     makeURL(page) {
-        if (this.id == 'rank' && page != 0) {
+        if (this.id == 'rank-total' && page != 0) {
             return this.url + `total-block-${page + 1}.shtml`;
         } else if (this.id == 'update') {
             return this.url.replace('update_1', `update_${page + 1}`);
