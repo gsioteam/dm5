@@ -180,12 +180,12 @@ class MainController extends Controller {
             let info = node.querySelector('a');
             results.push({
                 title: info.getAttribute('title'),
-                link: info.getAttribute('href'),
+                link: `https://manhua.dmzj.com${info.getAttribute('href')}`,
                 picture: node.querySelector('img').getAttribute('src'),
                 pictureHeaders: {
                     Referer: url
                 },
-                subtitle: node.querySelectorAll('.righter-mr')[1].querySelector('span').textContent,
+                subtitle: node.querySelector('.black_font12').textContent,
             });
         }
     }
@@ -199,12 +199,12 @@ class MainController extends Controller {
             let info = node.querySelector('a');
             results.push({
                 title: info.getAttribute('title'),
-                link: `https://manhua.dmzj.com${info.getAttribute('href')}`,
+                link: info.getAttribute('href'),
                 picture: node.querySelector('img').getAttribute('src'),
                 pictureHeaders: {
                     Referer: url
                 },
-                subtitle: node.querySelector('.black_font12').textContent,
+                subtitle: node.querySelectorAll('.righter-mr')[1].querySelector('span').textContent,
             });
         }
         return results;
