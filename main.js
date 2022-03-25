@@ -176,7 +176,6 @@ class MainController extends Controller {
     parseCategoryData(text, url) {
         const doc = HTMLParser.parse(text);
         let list = doc.querySelector('.tcaricature_block2').querySelectorAll('ul');
-        showToast(`${list[0]}`);
         for (let node of list) {
             let info = node.querySelector('a');
             results.push({
@@ -189,6 +188,7 @@ class MainController extends Controller {
                 subtitle: node.querySelector('.black_font12').textContent,
             });
         }
+        return results;
     }
 
     //排行页面，通过网页获取
