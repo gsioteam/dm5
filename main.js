@@ -35,9 +35,15 @@ class MainController extends Controller {
     }
 
     async onPressed(index) {
-        await this.navigateTo('book', {
-            data: this.data.list[index]
-        });
+        if (this.id == 'subject') {
+            await this.navigateTo('list', {
+                data: this.data.list[index]
+            });
+        } else {
+            await this.navigateTo('book', {
+                data: this.data.list[index]
+            });
+        }
     }
 
     onRefresh() {
@@ -89,6 +95,8 @@ class MainController extends Controller {
                 return this.url.replace('block-1', `block-${page + 1}`);
             } else if (this.id.search('category') != -1) {
                 return this.url.replace('.shtml', `/${page + 1}.shtml`);
+            } else if(this.id == 'subject') {
+                return this.url.replace('0.json', `${page}.json`);
             } else {
                 return this.url;
             }
@@ -169,7 +177,28 @@ class MainController extends Controller {
             return this.parseRankData(text, url);
         } else if (this.id.search('category') != -1) {
             return this.parseCategoryData(text, url);
+        } else if (this.id == 'subject') {
+            return this.parseSubjectData(text, url);
         }
+    }
+
+    //专题界面，通过api获取
+    parseSubjectData(text, url) {
+        const json = JSON.parse(text);
+        let results = [];
+        for (let data of json['data']) {
+            results.push({
+                subject: true,
+                title: data['title'],
+                link: `https://nnv3api.muwai.com/subject/${data['id']}.json`,
+                picture: data['small_cover'],
+                pictureHeaders: {
+                    Referer: url
+                },
+                subtitle: data['short_title'],
+            });
+        }
+        return results;
     }
 
     //分类界面，通过网页获取
