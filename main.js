@@ -176,6 +176,7 @@ class MainController extends Controller {
     parseCategoryData(text, url) {
         const doc = HTMLParser.parse(text);
         let list = doc.querySelector('.tcaricature_block2').querySelectorAll('ul');
+        let results = [];
         for (let node of list) {
             let info = node.querySelector('a');
             results.push({
