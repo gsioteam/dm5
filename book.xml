@@ -25,7 +25,7 @@
                             </view>
                         </stack>
                     </attr:background>
-                    <text lines="6" overflow="ellipsis">
+                    <text lines="7" overflow="ellipsis">
                         <span size="14">$title</span>
                         <span alignment="middle">
                             <button type="text" 
@@ -41,6 +41,12 @@
                                 <view padding="ltrb(0,5,0,0)"/>
                             </span>
                             <span size="10">$subtitle</span>
+                        </if>
+                        <if candidate="isNotNull($state)"> 
+                            <span>
+                                <view padding="ltrb(0,5,0,0)"/>
+                            </span>
+                            <span size="8">$state</span>
                         </if>
                         <if candidate="isNotNull($summary)"> 
                             <span>

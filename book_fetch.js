@@ -3,7 +3,7 @@ function parseData(text, url) {
     const json = JSON.parse(text);
     let summary = json['data']['info']['description'];
     let subtitle = json['data']['info']['authors'];
-
+    let state = json['data']['info']['status'];
     let links = json['data']['list'];
     let list = [];
     for (let link of links) {
@@ -19,6 +19,7 @@ function parseData(text, url) {
     return {
         subtitle: subtitle,
         summary: summary,
+        state: state,
         list: list.reverse(),
     };
 }
