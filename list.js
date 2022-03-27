@@ -58,32 +58,25 @@ class ListController extends Controller {
     }
 
     parseData(text, url) {
-        const json = JSON.parse(text);
+        const doc = HTMLParser.parse(text);
+
+        let list = doc.querySelectorAll('.book-list li');
+
         let results = [];
-        if (url.search('/UCenter/author/') == -1) { //若不为作者信息
-            for (let comic of json['data']['comics']) {
-                results.push({
-                    title: comic['name'],
-                    link: `http://api.dmzj.com/dynamic/comicinfo/${comic['id']}.json`,
-                    picture: comic['cover'],
-                    pictureHeaders: {
-                        Referer: 'http://manhua.dmzj.com/'
-                    },
-                    subtitle: comic['recommend_brief'],
-                });
+        for (let item of list) {
+            let picture_url = item.querySelector('img').getAttribute('data-cfsrc');
+            if (typeof picture_url == 'undefined') {
+                picture_url = item.querySelector('img').getAttribute('src');
             }
-        } else {
-            for (let comic of json['data']) {
-                results.push({
-                    title: comic['name'],
-                    link: `http://api.dmzj.com/dynamic/comicinfo/${comic['id']}.json`,
-                    picture: comic['cover'],
-                    pictureHeaders: {
-                        Referer: 'http://manhua.dmzj.com/'
-                    },
-                    subtitle: '',
-                });
-            }
+            results.push({
+                title: item.querySelector('.book-list-info-title').text,
+                subtitle: '',
+                picture: picture_url,
+                pictureHeaders: {
+                    Referer: url
+                },
+                link: `https://m.dm5.com${item.querySelector('a').getAttribute('href')}`,
+            });
         }
         return results;
     }

@@ -40,7 +40,7 @@
                             <span>
                                 <view padding="ltrb(0,5,0,0)"/>
                             </span>
-                            <span size="10">$subtitle</span>
+                            <span size="8">$subtitle</span>
                         </if>
                         <if candidate="isNotNull($state)"> 
                             <span>

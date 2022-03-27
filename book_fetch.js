@@ -1,18 +1,29 @@
-//获取漫画信息
+
 function parseData(text, url) {
-    const json = JSON.parse(text);
-    let summary = json['data']['info']['description'];
-    let subtitle = json['data']['info']['authors'];
-    let state = json['data']['info']['status'];
-    let links = json['data']['list'];
+    const doc = HTMLParser.parse(text);
+    let summary = doc.querySelector('.detail-desc').text;
+    let state = doc.querySelector('.detail-list-title-1').text;
+    let authors = doc.querySelectorAll('.detail-main-info-author a');
+    let alist = [];
+    for (let a of authors) {
+        alist.push(a.text);
+    }
+    let subtitle = alist.join(',');
+
+    let links = doc.querySelectorAll('#tempc > ul > li > a');
     let list = [];
     for (let link of links) {
         let item = {
-            link: `https://m.dmzj.com/chapinfo/${link['comic_id']}/${link['id']}.html`,
+            link: new URL(link.getAttribute('href'), url).toString(),
         };
-        item.title = link['chapter_name'];
-        let createtime = new Date(parseInt(link['createtime']) * 1000).toLocaleString().replace(/:\d{1,2}$/,' ');
-        item.subtitle = createtime.substring(0, 10);
+        let title = link.querySelector('.detail-list-2-info-title');
+        if (title) {
+            item.title = title.text.replace(/ +/, ' ') 
+        } else {
+            item.title = link.text.replace(/ +/, ' ');
+        }
+        if (link.querySelector('.detail-list-2-info-right')) 
+            item.subtitle = 'VIP';
         list.push(item);
     }
 
@@ -25,22 +36,12 @@ function parseData(text, url) {
 }
 
 module.exports = async function(url) {
-    if (url.search('json') == -1) {
-        let res = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36',
-            }
-        });
-        let text = await res.text();
-        const doc = HTMLParser.parse(text);
-        let book_id = doc.querySelector('#comic_id').textContent;
-        url = `http://api.dmzj.com/dynamic/comicinfo/${book_id}.json`
-    }
     let res = await fetch(url, {
         headers: {
             'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36',
         }
     });
     let text = await res.text();
+
     return parseData(text, url);
 }

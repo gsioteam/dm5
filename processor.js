@@ -23,23 +23,38 @@ class MangaProcessor extends Processor {
             let url = this.data.link;
             let res = await fetch(url);
             let text = await res.text();
+            
             const that = this;
-            function getImage(text, url) {
-                const json = JSON.parse(text);
-                let data = [];
-                for (let img_url of json['page_url']) { //获取图片链接列表
-                    data.push({
-                        url: img_url,
-                        headers: {
-                            Referer: url
-                        }
-                    });
+            function parseDoc(doc, url) {
+                let scripts = doc.querySelectorAll('script:not([src])');
+                let script;
+                for (let s of scripts) {
+                    if (s.text.match(/^eval\(/))
+                      script = s.text
                 }
-                console.log(`setData ${JSON.stringify(data)}`);
-                that.setData(data);
-                return true;
+                if (script) {
+                    let env = new ScriptContext();
+                    env.eval(script);
+                    let arr = env.eval('newImgs');
+                    let data = [];
+                    for (let i = 0, t = arr.length; i < t; ++i) {
+                        data.push({
+                            url: arr[i],
+                            headers: {
+                                Referer: url
+                            }
+                        });
+                    }
+                    console.log(`setData ${JSON.stringify(data)}`);
+                    that.setData(data);
+                    return true;
+                } else {
+                    console.log('Can not find script');
+                    return false;
+                }
             }
-            if (getImage(text, url)) this.save(true, state);
+            const doc = HTMLParser.parse(text);
+            if (parseDoc(doc, url)) this.save(true, state);
             
             this.loading = false;
         } catch (e) {
@@ -57,7 +72,7 @@ class MangaProcessor extends Processor {
             }
         });
         let text = await res.text();
-        return text;
+        return HTMLParser.parse(text);
     }
 
     // Called in `dispose`
@@ -67,7 +82,7 @@ class MangaProcessor extends Processor {
 
     // Check for new chapter
     async checkNew() {
-        let url = this.data.link;
+        let url = this.data.link + '?waring=1';
         let data = await bookFetch(url);
         var item = data.list[data.list.length - 1];
         /**

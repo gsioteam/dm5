@@ -1,4 +1,6 @@
 
+const baseURL = 'https://m.dm5.com/search?title={0}&language=1&page={1}';
+
 class SearchController extends Controller {
 
     load() {
@@ -16,12 +18,12 @@ class SearchController extends Controller {
             hints: hints,
             text: '',
             loading: false,
-            hasMore: false,
+            hasMore: true,
         };
     }
 
-    makeURL(word) {
-        return `http://sacg.dmzj.com/comicsum/search.php?s=${word}`;
+    makeURL(word, page) {
+        return baseURL.replace('{0}', encodeURIComponent(word)).replace('{1}', page + 1);
     }
 
     onSearchClicked() {
@@ -50,8 +52,9 @@ class SearchController extends Controller {
                 this.data.loading = true;
             });
             try {
-                let list = await this.request(this.makeURL(text));
+                let list = await this.request(this.makeURL(text, 0));
                 this.key = text;
+                this.page = 0;
                 this.setState(()=>{
                     this.data.list = list;
                     this.data.loading = false;
@@ -98,7 +101,8 @@ class SearchController extends Controller {
         let text = this.key;
         if (!text) return;
         try {
-            let list = await this.request(this.makeURL(text));
+            let list = await this.request(this.makeURL(text, 0));
+            this.page = 0;
             this.setState(()=>{
                 this.data.list = list;
                 this.data.loading = false;
@@ -112,53 +116,50 @@ class SearchController extends Controller {
     }
 
     async onLoadMore() {
-
+        let page = this.page + 1;
+        try {
+            let list = await this.request(this.makeURL(this.key, page));
+            this.page = page;
+            this.setState(()=>{
+                for (let item of list) {
+                    this.data.list.push(item);
+                }
+                this.data.loading = false;
+            });
+        } catch(e) {
+            this.hasMore = false;
+            showToast(`${e}\n${e.stack}`);
+            this.setState(()=>{
+                this.data.loading = false;
+            });
+        }
     }
 
-    //获取查找结果
     async request(url) {
+        let res = await fetch(url);
+        let text = await res.text();
+        
+        let doc = HTMLParser.parse(text);
+        
         let items = [];
-        //如果查找关键字为id:数字，则显示为此id的漫画及其相似推荐
-        if (url.search("id:") != -1) {
-            url = `http://api.dmzj.com/dynamic/comicinfo/${url.substring(46,url.length)}.json`;
-            let res = await fetch(url);
-            let text = await res.text();
-            let json = JSON.parse(text);
+
+        let list = doc.querySelectorAll('.book-list li');
+        for (let node of list) {
+            let tmp = node.querySelector('.book-list-info-bottom-item');
+            let picture_url = node.querySelector('img').getAttribute('data-cfsrc');
+            if (typeof picture_url == 'undefined') {
+                picture_url = node.querySelector('img').getAttribute('src');
+            }
             items.push({
-                title: json['data']['info']['title'],
-                subtitle: json['data']['info']['authors'],
-                picture: json['data']['info']['cover'],
+                title: node.querySelector('.book-list-info-title').text,
+                subtitle: tmp ? tmp.text : undefined,
+                picture: picture_url,
                 pictureHeaders: {
-                    Referer: 'http://manhua.dmzj.com/'
+                    Referer: url
                 },
-                link: `http://api.dmzj.com/dynamic/comicinfo/${json['data']['info']['id']}.json`,
+                link: new URL(node.querySelector('.book-list-info > a').getAttribute('href'), url).toString(),
             });
-            for (let similar of json['data']['similar']) {
-                items.push({
-                    title: similar['title'],
-                    subtitle: '',
-                    picture: similar['cover'],
-                    pictureHeaders: {
-                        Referer: 'http://manhua.dmzj.com/'
-                    },
-                    link: `http://api.dmzj.com/dynamic/comicinfo/${similar['id']}.json`,
-                });
-            }
-        } else {
-            let res = await fetch(url);
-            let text = await res.text();
-            let json = JSON.parse(text.substring(20,text.length-1));
-            for (let result of json) {
-                items.push({
-                    title: result['comic_name'],
-                    subtitle: result['comic_author'],
-                    picture: result['comic_cover'],
-                    pictureHeaders: {
-                        Referer: 'http://manhua.dmzj.com/'
-                    },
-                    link: `http://api.dmzj.com/dynamic/comicinfo/${result['id']}.json`,
-                });
-            }
+
         }
         return items;
     }

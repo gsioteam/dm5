@@ -1,3 +1,5 @@
+const PER_PAGE = 40;
+
 class MainController extends Controller {
 
     load(data) {
@@ -5,7 +7,6 @@ class MainController extends Controller {
         this.url = data.url;
         this.page = 0;
 
-        //查找缓存
         var cached = this.readCache();
         let list;
         if (cached) {
@@ -17,12 +18,11 @@ class MainController extends Controller {
         this.data = {
             list: list,
             loading: false,
-            hasMore: this.id != 'recommend'
+            hasMore: this.id !== 'update'
         };
 
         this.userAgent = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36';
 
-        //判断是否重新加载
         if (cached) {
             let now = new Date().getTime();
             if (now - cached.time > 30 * 60 * 1000) {
@@ -35,7 +35,7 @@ class MainController extends Controller {
     }
 
     async onPressed(index) {
-        if (this.id == 'subject' || this.data.list[index].list) {
+        if (this.id == 'booklist') {
             await this.navigateTo('list', {
                 data: this.data.list[index]
             });
@@ -72,10 +72,10 @@ class MainController extends Controller {
                     this.data.list.push(item);
                 }
                 this.data.loading = false;
-                this.data.hasMore = this.id != 'recommend' && items.length > 0;
+                this.data.hasMore = items.length >= PER_PAGE;
             });
         } catch (e) {
-            showToast('没有更多了');
+            showToast(`${e}\n${e.stack}`);
             this.setState(()=>{
                 this.data.loading = false;
             });
@@ -84,23 +84,7 @@ class MainController extends Controller {
     }
 
     makeURL(page) {
-        if (page == 0) {
-            return this.url;
-        } else {
-            if (this.id == 'rank-total') {
-                return this.url + `total-block-${page + 1}.shtml`;
-            } else if (this.id == 'update') {
-                return this.url.replace('update_1', `update_${page + 1}`);
-            } else if (this.id.search('rank') != -1) {
-                return this.url.replace('block-1', `block-${page + 1}`);
-            } else if (this.id.search('category') != -1) {
-                return this.url.replace('.shtml', `/${page + 1}.shtml`);
-            } else if(this.id == 'subject') {
-                return this.url.replace('0.json', `${page}.json`);
-            } else {
-                return this.url;
-            }
-        }
+        return this.url.replace('{0}', page + 1).replace('{1}', PER_PAGE);
     }
 
     async reload() {
@@ -108,43 +92,15 @@ class MainController extends Controller {
             this.data.loading = true;
         });
         try {
-            let items = [];
             let url = this.makeURL(0);
-            if (this.id == 'recommend') {
-                this.text_recommend = []; //储存推荐页的json数据
-                this.list_recommend = [47, 52, 53, 55, 51, 54, 56]; //推荐页类别标志
-                for (let id of this.list_recommend) {
-                    if (id != 56) {
-                        let url_rcommend = `https://nnv3api.muwai.com/recommend/batchUpdate?category_id=${id}`;
-                        let res = await fetch(url_rcommend, {
-                            headers: {
-                                'User-Agent': this.userAgent,
-                            }
-                        });
-                        let text = await res.text();
-                        this.text_recommend.push(text);
-                    } else {
-                        let res = await fetch(url, {
-                            headers: {
-                                'User-Agent': this.userAgent,
-                            }
-                        });
-                        let text = await res.text();
-                        this.text_recommend.push(text);
-                    }
+            let res = await fetch(url, {
+                headers: {
+                    'User-Agent': this.userAgent,
                 }
-                items = this.parseRecommendData(url);
-            } else {
-                let res = await fetch(url, {
-                    headers: {
-                        'User-Agent': this.userAgent,
-                    }
-                });
-                let text = await res.text();
-                items = this.parseData(text, url); //获取信息
-            }
+            });
+            let text = await res.text();
+            let items = this.parseData(text, url);
             this.page = 0;
-            //存至本地作为缓存
             localStorage['cache_' + this.id] = JSON.stringify({
                 time: new Date().getTime(),
                 items: items,
@@ -152,10 +108,10 @@ class MainController extends Controller {
             this.setState(()=>{
                 this.data.list = items;
                 this.data.loading = false;
-                this.data.hasMore = this.id != 'recommend' && items.length > 0;
+                this.data.hasMore = this.id !== 'update' && items.length >= PER_PAGE;
             });
         } catch (e) {
-            showToast('没有更多了');
+            showToast(`${e}\n${e.stack}`);
             this.setState(()=>{
                 this.data.loading = false;
             });
@@ -171,165 +127,110 @@ class MainController extends Controller {
     }
 
     parseData(text, url) {
-        if (this.id == 'update') {
-            return this.parseUpdateData(text, url);
-        } else if (this.id.search('rank') != -1) {
-            return this.parseRankData(text, url);
-        } else if (this.id.search('category') != -1) {
-            return this.parseCategoryData(text, url);
-        } else if (this.id == 'subject') {
-            return this.parseSubjectData(text, url);
-        }
+        if (this.id === 'update') {
+            return this.parseHomeData(text, url);
+        } else if (this.id == 'booklist') {
+            return this.parseBookData(text, url);
+        } else {
+            return this.parsePageData(text, url);
+        } 
     }
 
-    //专题界面，通过api获取
-    parseSubjectData(text, url) {
-        const json = JSON.parse(text);
+    parseBookData(html, url) {
+        const doc = HTMLParser.parse(html);
+
+        let list = doc.querySelectorAll('.manga-list-1 li');
+
         let results = [];
-        for (let data of json['data']) {
+
+        for (let item of list) {
+            let picture_url = item.querySelector('img').getAttribute('data-cfsrc');
+            if (typeof picture_url == 'undefined') {
+                picture_url = item.querySelector('img').getAttribute('src');
+            }
             results.push({
                 subject: true,
-                title: data['title'],
-                link: `https://nnv3api.muwai.com/subject/${data['id']}.json`,
-                picture: data['small_cover'],
+                title: item.querySelector('.manga-list-1-title').text,
+                subtitle: item.querySelector('.manga-list-1-tip').text,
+                picture: picture_url,
                 pictureHeaders: {
                     Referer: url
                 },
-                subtitle: data['short_title'],
+                link: `https://m.dm5.com${item.querySelector('a').getAttribute('href')}`,
             });
         }
         return results;
     }
 
-    //分类界面，通过网页获取
-    parseCategoryData(text, url) {
-        const doc = HTMLParser.parse(text);
-        let list = doc.querySelector('.tcaricature_block2').querySelectorAll('ul');
+    parseHomeData(html, url) {
+        const doc = HTMLParser.parse(html);
+
+        let list = doc.querySelectorAll('.manga-list');
+
         let results = [];
+
         for (let node of list) {
-            let info = node.querySelector('a');
+            if (list.indexOf(node) == 3) {
+                continue;
+            }
+            let get_title = node.querySelector('.manga-list-title').text.match(/[^\ ]+/)[0];
+            if (list.indexOf(node) != 6) {
+                get_title = get_title.substring(0, get_title.length - 2)
+            } 
             results.push({
-                title: info.getAttribute('title'),
-                link: `https://manhua.dmzj.com${info.getAttribute('href')}`,
-                picture: node.querySelector('img').getAttribute('src'),
-                pictureHeaders: {
-                    Referer: url
-                },
-                subtitle: node.querySelector('.black_font12').textContent,
+                header: true,
+                title: get_title,
+                picture: 'https://css99tel.cdndm5.com/v202008141414/dm5/images/sd/index-title-1.png'
             });
-        }
-        return results;
-    }
 
-    //排行页面，通过网页获取
-    parseRankData(text, url){
-        const doc = HTMLParser.parse(text);
-        let list = doc.querySelectorAll('.middlerighter1');
-        let results = [];
-        for (let node of list) {
-            let info = node.querySelector('a');
-            results.push({
-                title: info.getAttribute('title'),
-                link: info.getAttribute('href'),
-                picture: node.querySelector('img').getAttribute('src'),
-                pictureHeaders: {
-                    Referer: url
-                },
-                subtitle: node.querySelectorAll('.righter-mr')[1].querySelector('span').textContent,
-            });
-        }
-        return results;
-    }
-
-    //推荐页面，通过api获取
-    parseRecommendData(url){
-        let results = [];
-        let image_list = ['https://m.dmzj.com/images/icon_h2_1.png', 'https://m.dmzj.com/images/icon_h2_5.png',
-                            'https://m.dmzj.com/images/icon_h2_6.png', 'https://m.dmzj.com/images/icon_h2_8.png',
-                            'https://m.dmzj.com/images/icon_h2_4.png', 'https://m.dmzj.com/images/icon_h2_7.png',
-                            'https://m.dmzj.com/images/icon_h2_9.png'];
-        for (let text of this.text_recommend) {
-            let json = JSON.parse(text);
-            if (this.list_recommend[this.text_recommend.indexOf(text)] == 56) {
-                results.push({
-                    header: true,
-                    title: json[8]['title'],
-                    picture: image_list[this.text_recommend.indexOf(text)]
-                });
-                for (let data of json[8]['data']) {
-                    results.push({
-                        title: data['title'],
-                        subtitle: data['authors'],
-                        picture: data['cover'],
-                        pictureHeaders: {
-                            Referer: url
-                        },
-                        link: `http://api.dmzj.com/dynamic/comicinfo/${data['id']}.json`,
-                    });
+            let book_nodes = node.querySelectorAll('.swiper-slide > li');
+            for (let book_node of book_nodes) {
+                let link = book_node.querySelector('a');
+                let subtitle = book_node.querySelector(".manga-list-1-tip")
+                if (!subtitle) {
+                    subtitle = book_node.querySelector(".manga-list-2-tip")
                 }
-            } else if (this.list_recommend[this.text_recommend.indexOf(text)] == 51) {
-                results.push({
-                    header: true,
-                    title: json['data']['title'],
-                    picture: image_list[this.text_recommend.indexOf(text)]
-                });
-                for (let data of json['data']['data']){
-                    results.push({
-                        list: true,
-                        title: data['title'],
-                        subtitle: data['sub_title'],
-                        picture: data['cover'],
-                        pictureHeaders: {
-                            Referer: url
-                        },
-                        link: `https://nnv3api.muwai.com/UCenter/author/${data['obj_id']}.json`,
-                    });
+                if (!subtitle) {
+                    subtitle = book_node.querySelector(".rank-list-info-right-subtitle")
                 }
-            } else {
-                results.push({
-                    header: true,
-                    title: json['data']['title'],
-                    picture: image_list[this.text_recommend.indexOf(text)]
-                });
-                for (let data of json['data']['data']){
-                    if (data['type'] == 1) {
-                        let sub_title = data['sub_title'];
-                        sub_title = sub_title.substring(3,sub_title.length)
-                        results.push({
-                            title: data['title'],
-                            subtitle: sub_title,
-                            picture: data['cover'],
-                            pictureHeaders: {
-                                Referer: url
-                            },
-                            link: `http://api.dmzj.com/dynamic/comicinfo/${data['obj_id']}.json`,
-                        });
-                    }
+                let picture_url = book_node.querySelector('img').getAttribute('data-cfsrc');
+                if (typeof picture_url == 'undefined') {
+                    picture_url = book_node.querySelector('img').getAttribute('src');
                 }
+                results.push({
+                    title: link.getAttribute('title'),
+                    link: new URL(link.getAttribute('href'), url).toString(),
+                    picture: picture_url,
+                    pictureHeaders: {
+                        Referer: url
+                    },
+                    subtitle: subtitle == null ? null : subtitle.text,
+                });
             }
         }
+
         return results;
     }
 
-    //更新页面，通过网页获取
-    parseUpdateData(text, url){
-        const doc = HTMLParser.parse(text);
-        let list = doc.querySelectorAll('.boxdiv1');
+    parsePageData(text, url) {
+        const json = JSON.parse(text);
+        let items = json['UpdateComicItems'];
+
         let results = [];
-        for (let node of list) {
-            let info = node.querySelector('a');
+        for (let item of items) {
             results.push({
-                title: info.getAttribute('title'),
-                link: `https://manhua.dmzj.com/${info.getAttribute('href')}`,
-                picture: node.querySelector('img').getAttribute('src'),
+                title: item['Title'],
+                subtitle: item['Author'].join(','),
+                picture: item['ShowPicUrlB'],
                 pictureHeaders: {
                     Referer: url
                 },
-                subtitle: node.querySelector('.gray12').textContent,
+                link: new URL(`/${item['UrlKey']}`, url).toString(),
             });
         }
         return results;
     }
+
 }
 
 module.exports = MainController;
