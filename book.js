@@ -24,6 +24,7 @@ class BookController extends Controller {
                 subtitle: this.data.subtitle,
                 picture: this.data.picture,
                 summary: this.data.summary,
+                state: this.data.state,
             },
         };
     }
@@ -34,6 +35,7 @@ class BookController extends Controller {
             title: data.title,
             subtitle: data.subtitle,
             summary: data.summary,
+            state: data.state,
             picture: data.picture,
             pictureHeaders: {
                 Referer: this.url
@@ -58,6 +60,7 @@ class BookController extends Controller {
             if (data.title) this.data.title = data.title;
             if (data.subtitle) this.data.subtitle = data.subtitle;
             if (data.summary) this.data.summary = data.summary;
+            if (data.state) this.data.state = data.state;
             this.data.list = data.list;
 
             let now = new Date().getTime();
@@ -96,6 +99,7 @@ class BookController extends Controller {
                 if (data.title) this.data.title = data.title;
                 if (data.subtitle) this.data.subtitle = data.subtitle;
                 if (data.summary) this.data.summary = data.summary;
+                if (data.state) this.data.state = data.state;
                 this.data.list = data.list;
                 this.data.loading = false;
             });

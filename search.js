@@ -18,7 +18,7 @@ class SearchController extends Controller {
             hints: hints,
             text: '',
             loading: false,
-            hasMore: false,
+            hasMore: true,
         };
     }
 
@@ -127,6 +127,7 @@ class SearchController extends Controller {
                 this.data.loading = false;
             });
         } catch(e) {
+            this.hasMore = false;
             showToast(`${e}\n${e.stack}`);
             this.setState(()=>{
                 this.data.loading = false;
@@ -145,10 +146,14 @@ class SearchController extends Controller {
         let list = doc.querySelectorAll('.book-list li');
         for (let node of list) {
             let tmp = node.querySelector('.book-list-info-bottom-item');
+            let picture_url = node.querySelector('img').getAttribute('data-cfsrc');
+            if (typeof picture_url == 'undefined') {
+                picture_url = node.querySelector('img').getAttribute('src');
+            }
             items.push({
                 title: node.querySelector('.book-list-info-title').text,
                 subtitle: tmp ? tmp.text : undefined,
-                picture: node.querySelector('.book-list-cover-img').getAttribute('data-cfsrc'),
+                picture: picture_url,
                 pictureHeaders: {
                     Referer: url
                 },

@@ -26,6 +26,11 @@ class IndexController extends Controller {
                     "title": "欧美",
                     "id": "europe",
                     "url": "https://m.dm5.com/dm5.ashx?pagesize={1}&pageindex={0}&sort=2&areaid=52&action=getclasscomics"
+                },
+                {
+                    "title": "书单",
+                    "id": "booklist",
+                    "url": "https://m.dm5.com/comicbook/"
                 }, 
             ]
         };
