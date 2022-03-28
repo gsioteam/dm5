@@ -1,0 +1,78 @@
+<scaffold>
+<refresh loading="$loading">
+    <attr:onRefresh>
+        <callback function="onRefresh"/>
+    </attr:onRefresh>
+    <slivers>
+        <sliver-appbar expandedHeight="288"
+                    color="white" 
+                    floating="true" 
+                    pinned="true">
+            <FlexibleSpaceBar padding="ltrb(20,0,0,64)">
+                <attr:background>
+                    <stack>
+                        <img src="$picture" headers="$pictureHeaders" fit="cover" width="infinity()" height="infinity()"/>
+                        <filter filter="blur(4, 4)">
+                            <view color="hex(#0000)"/>
+                        </filter>
+                        <view width="infinity()" height="infinity()" >
+                            <attr:gradient>
+                                <LinearGradient begin="topCenter" end="bottomCenter">
+                                    <attr:colors>
+                                        <color>hex(#0007)</color>
+                                        <color>hex(#0000)</color>
+                                        <color>hex(#0007)</color>
+                                    </attr:colors>
+                                </LinearGradient>
+                            </attr:gradient>
+                        </view>
+                    </stack>
+                </attr:background>
+                <text lines="4" overflow="ellipsis">
+                    <span size="14">$title</span>
+                    <span alignment="middle">
+                        <button type="text" 
+                                tapTargetSize="shrinkWrap" 
+                                minimumSize="zero"
+                                padding="ltrb(4,1,4,10)" 
+                                onPressed="onSourcePressed">
+                            <text size="6" text="loc(source)"/>
+                        </button>
+                    </span>
+                    <if candidate="isNotNull($subtitle)"> 
+                        <span>
+                            <view padding="ltrb(0,5,0,0)"/>
+                        </span>
+                        <span size="8">$subtitle</span>
+                    </if>
+                </text>
+            </FlexibleSpaceBar>
+        </sliver-appbar>
+        <sliver-list-view itemCount="length(${list})">
+            <attr:builder>
+                <Function returnType='Widget'>
+                    <script>
+                        set("item", ${list[args[1]]})
+                    </script>
+                    <list-item color="color(canvas)">
+                        <attr:onTap>
+                            <callback function="onPressed" args="array(${args[1]})"/>
+                        </attr:onTap>
+                        <attr:leading>
+                            <img src="${item.picture}" headers="${item.pictureHeaders}" width="48" height="48" fit="cover"/>
+                        </attr:leading>
+                        <attr:title>
+                            <text>${item.title}</text>
+                        </attr:title>
+                        <if candidate="isNotNull(${item.subtitle})">
+                            <attr:subtitle>
+                                <text>${item.subtitle}</text>
+                            </attr:subtitle>
+                        </if>
+                    </list-item>
+                </Function>
+            </attr:builder>
+        </sliver-list-view>
+    </slivers>
+</refresh>
+</scaffold>

@@ -2,6 +2,7 @@
 function parseData(text, url) {
     const doc = HTMLParser.parse(text);
     let summary = doc.querySelector('.detail-desc').text;
+    let state = doc.querySelector('.detail-list-title-1').text;
     let authors = doc.querySelectorAll('.detail-main-info-author a');
     let alist = [];
     for (let a of authors) {
@@ -29,6 +30,7 @@ function parseData(text, url) {
     return {
         subtitle: subtitle,
         summary: summary,
+        state: state,
         list: list.reverse(),
     };
 }

@@ -35,9 +35,15 @@ class MainController extends Controller {
     }
 
     async onPressed(index) {
-        await this.navigateTo('book', {
-            data: this.data.list[index]
-        });
+        if (this.id == 'booklist') {
+            await this.navigateTo('list', {
+                data: this.data.list[index]
+            });
+        } else {
+            await this.navigateTo('book', {
+                data: this.data.list[index]
+            });
+        }
     }
 
     onRefresh() {
@@ -123,9 +129,37 @@ class MainController extends Controller {
     parseData(text, url) {
         if (this.id === 'update') {
             return this.parseHomeData(text, url);
+        } else if (this.id == 'booklist') {
+            return this.parseBookData(text, url);
         } else {
             return this.parsePageData(text, url);
         } 
+    }
+
+    parseBookData(html, url) {
+        const doc = HTMLParser.parse(html);
+
+        let list = doc.querySelectorAll('.manga-list-1 li');
+
+        let results = [];
+
+        for (let item of list) {
+            let picture_url = item.querySelector('img').getAttribute('data-cfsrc');
+            if (typeof picture_url == 'undefined') {
+                picture_url = item.querySelector('img').getAttribute('src');
+            }
+            results.push({
+                subject: true,
+                title: item.querySelector('.manga-list-1-title').text,
+                subtitle: item.querySelector('.manga-list-1-tip').text,
+                picture: picture_url,
+                pictureHeaders: {
+                    Referer: url
+                },
+                link: `https://m.dm5.com${item.querySelector('a').getAttribute('href')}`,
+            });
+        }
+        return results;
     }
 
     parseHomeData(html, url) {
@@ -136,9 +170,16 @@ class MainController extends Controller {
         let results = [];
 
         for (let node of list) {
+            if (list.indexOf(node) == 3) {
+                continue;
+            }
+            let get_title = node.querySelector('.manga-list-title').text.match(/[^\ ]+/)[0];
+            if (list.indexOf(node) != 6) {
+                get_title = get_title.substring(0, get_title.length - 2)
+            } 
             results.push({
                 header: true,
-                title: node.querySelector('.manga-list-title').text.match(/[^\ ]+/)[0],
+                title: get_title,
                 picture: 'https://css99tel.cdndm5.com/v202008141414/dm5/images/sd/index-title-1.png'
             });
 
@@ -152,11 +193,14 @@ class MainController extends Controller {
                 if (!subtitle) {
                     subtitle = book_node.querySelector(".rank-list-info-right-subtitle")
                 }
-
+                let picture_url = book_node.querySelector('img').getAttribute('data-cfsrc');
+                if (typeof picture_url == 'undefined') {
+                    picture_url = book_node.querySelector('img').getAttribute('src');
+                }
                 results.push({
                     title: link.getAttribute('title'),
                     link: new URL(link.getAttribute('href'), url).toString(),
-                    picture: book_node.querySelector('img').getAttribute('data-cfsrc'),
+                    picture: picture_url,
                     pictureHeaders: {
                         Referer: url
                     },
