@@ -153,10 +153,12 @@ class MainController extends Controller {
                     subtitle = book_node.querySelector(".rank-list-info-right-subtitle")
                 }
 
+                let img = book_node.querySelector('img');
+                let pic = img.getAttribute('data-cfsrc') || img.getAttribute('src')
                 results.push({
                     title: link.getAttribute('title'),
                     link: new URL(link.getAttribute('href'), url).toString(),
-                    picture: book_node.querySelector('img').getAttribute('data-cfsrc'),
+                    picture: pic,
                     pictureHeaders: {
                         Referer: url
                     },
